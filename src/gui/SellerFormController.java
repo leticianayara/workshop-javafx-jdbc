@@ -1,8 +1,11 @@
 package gui;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -17,8 +20,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import model.entities.Department;
 import model.entities.Seller;
 import model.exceptions.ValidationException;
 import model.services.SellerService;
@@ -41,10 +47,13 @@ public class SellerFormController implements Initializable{
 	private TextField txtEmail;
 	
 	@FXML
-	private TextField txtBirthDate;
+	private DatePicker dpBirthDate;
 	
 	@FXML
 	private TextField txtBaseSalary;
+	
+	@FXML
+	private ComboBox<Department> cbDepartment;
 	
 	@FXML
 	private Button btnSave;
@@ -63,6 +72,9 @@ public class SellerFormController implements Initializable{
 	
 	@FXML
 	private Label lblErrorBaseSalary;
+	
+	@FXML
+	private Label lblErrorDepartment;
 	
 	public void subscribeDataChangeListener(DataChangeListener listener) {
 		dataChangeListeners.add(listener);
@@ -114,7 +126,7 @@ public class SellerFormController implements Initializable{
 		}
 		obj.setEmail(txtEmail.getText());
 
-		obj.setBirthDate(Utils.tryParseToDate(txtBirthDate.getText()));;
+		Utils.formatDatePicker(dpBirthDate, "dd-MM-yyyy");
 		obj.setBaseSalary(Utils.tryParseToDouble(txtBaseSalary.getText()));
 		
 		if(exception.getErrors().size() > 0) {
@@ -146,21 +158,25 @@ public class SellerFormController implements Initializable{
 		if(entity == null) {
 			throw new IllegalStateException("Entity was null");
 		}
-		
-	//	SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-		
+				
 		txtId.setText(String.valueOf(entity.getId()));
 		txtName.setText(entity.getName());
 		txtEmail.setText(entity.getEmail());
-		//txtBirthDate.setText(sdf.format(entity.getBirthDate()));
-		//txtBaseSalary.setText(String.valueOf(entity.getBaseSalary()));
+		Locale.setDefault(Locale.US);
+		txtBaseSalary.setText(String.format("%.2f",entity.getBaseSalary()));
+		if(entity.getBirthDate() != null) {
+			dpBirthDate.setValue(LocalDate.ofInstant(entity.getBirthDate().toInstant(), ZoneId.systemDefault()));
+		}	
 	}
 	
 
 	private void initializNode() {
 		Constraints.setTextFieldInteger(txtId);
-		Constraints.setTextFieldMaxLength(txtName, 30);
+		Constraints.setTextFieldMaxLength(txtName, 70);
 		Constraints.setTextFieldDouble(txtBaseSalary);
+		Constraints.setTextFieldMaxLength(txtEmail, 60);
+		Utils.formatDatePicker(dpBirthDate, "dd-MM-yyyy");
+		
 	}
 	
 	private void setErrorMessages(Map<String,String> errors) {
