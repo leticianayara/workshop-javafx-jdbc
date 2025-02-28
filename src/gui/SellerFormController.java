@@ -38,13 +38,31 @@ public class SellerFormController implements Initializable{
 	private TextField txtName;
 	
 	@FXML
+	private TextField txtEmail;
+	
+	@FXML
+	private TextField txtBirthDate;
+	
+	@FXML
+	private TextField txtBaseSalary;
+	
+	@FXML
 	private Button btnSave;
 	
 	@FXML
 	private Button btnCancel;
 	
 	@FXML
-	private Label lblError;
+	private Label lblErrorName;
+	
+	@FXML
+	private Label lblErrorEmail;
+	
+	@FXML
+	private Label lblErrorBirthDate;
+	
+	@FXML
+	private Label lblErrorBaseSalary;
 	
 	public void subscribeDataChangeListener(DataChangeListener listener) {
 		dataChangeListeners.add(listener);
@@ -89,6 +107,16 @@ public class SellerFormController implements Initializable{
 		}
 		obj.setName(txtName.getText());
 		
+		if(txtEmail.getText() == null || txtEmail.getText().trim().equals("")) {
+			exception.addErrors("email", "Field can´t be empty or null");
+		} else if ( !txtEmail.getText().contains("@")) {
+			exception.addErrors("email", "This is not a email");
+		}
+		obj.setEmail(txtEmail.getText());
+
+		obj.setBirthDate(Utils.tryParseToDate(txtBirthDate.getText()));;
+		obj.setBaseSalary(Utils.tryParseToDouble(txtBaseSalary.getText()));
+		
 		if(exception.getErrors().size() > 0) {
 			throw exception;
 		}
@@ -118,21 +146,40 @@ public class SellerFormController implements Initializable{
 		if(entity == null) {
 			throw new IllegalStateException("Entity was null");
 		}
+		
+	//	SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+		
 		txtId.setText(String.valueOf(entity.getId()));
 		txtName.setText(entity.getName());
+		txtEmail.setText(entity.getEmail());
+		//txtBirthDate.setText(sdf.format(entity.getBirthDate()));
+		//txtBaseSalary.setText(String.valueOf(entity.getBaseSalary()));
 	}
 	
 
 	private void initializNode() {
 		Constraints.setTextFieldInteger(txtId);
 		Constraints.setTextFieldMaxLength(txtName, 30);
+		Constraints.setTextFieldDouble(txtBaseSalary);
 	}
 	
 	private void setErrorMessages(Map<String,String> errors) {
 		Set<String> fields = errors.keySet();
 		
 		if(fields.contains("name")) {
-			lblError.setText(errors.get("name"));
+			lblErrorName.setText(errors.get("name"));
+		}
+		
+		if(fields.contains("email")) {
+			lblErrorEmail.setText(errors.get("email"));
+		}
+		
+		if(fields.contains("birthDate")) {
+			lblErrorBirthDate.setText(errors.get("birthDate"));
+		}
+		
+		if(fields.contains("baseSalary")) {
+			lblErrorBaseSalary.setText(errors.get("baseSalary"));
 		}
 	}
 }

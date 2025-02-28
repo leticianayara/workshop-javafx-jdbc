@@ -1,6 +1,7 @@
 package gui.util;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Locale;
 
@@ -19,6 +20,24 @@ public class Utils {
 	public static Integer tryParseToInt(String str) {
 		try {
 			return Integer.parseInt(str);
+		}
+		catch (NumberFormatException e) {
+			return null;
+		}
+	}
+	
+	public static Double tryParseToDouble(String str) {
+		try {
+			return Double.parseDouble(str);
+		}
+		catch (NumberFormatException e) {
+			return null;
+		}
+	}
+	
+	public static Date tryParseToDate(String str) {
+		try {
+			return Date.from(Instant.parse(str));
 		}
 		catch (NumberFormatException e) {
 			return null;
