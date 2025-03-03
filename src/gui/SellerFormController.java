@@ -1,9 +1,11 @@
 package gui;
 
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -135,9 +137,20 @@ public class SellerFormController implements Initializable{
 			exception.addErrors("email", "This is not a email");
 		}
 		obj.setEmail(txtEmail.getText());
-
-		Utils.formatDatePicker(dpBirthDate, "dd/MM/yyyy");
+		
+		if(dpBirthDate.getValue() != null) {
+			Instant instant = Instant.from(dpBirthDate.getValue().atStartOfDay(ZoneId.systemDefault()));
+			obj.setBirthDate(Date.from(instant));
+		}else {
+			exception.addErrors("birthDate", "Field can't be empty or null");
+		}
+	
+		if(txtBaseSalary.getText() == null || txtBaseSalary.getText().trim().equals("")) {
+			exception.addErrors("baseSalary", "Field can't be empty or null");
+		}
 		obj.setBaseSalary(Utils.tryParseToDouble(txtBaseSalary.getText()));
+		
+		obj.setDepartment(cbDepartment.getValue());
 		
 		if(exception.getErrors().size() > 0) {
 			throw exception;
@@ -200,21 +213,11 @@ public class SellerFormController implements Initializable{
 	private void setErrorMessages(Map<String,String> errors) {
 		Set<String> fields = errors.keySet();
 		
-		if(fields.contains("name")) {
-			lblErrorName.setText(errors.get("name"));
-		}
+		lblErrorName.setText(fields.contains("name") ? errors.get("name") : "");
+		lblErrorEmail.setText(fields.contains("email") ? errors.get("email") : "");
+		lblErrorBirthDate.setText(fields.contains("birthDate") ? errors.get("birthDate") : "");
+		lblErrorBaseSalary.setText(fields.contains("baseSalary") ? errors.get("baseSalary") : "");
 		
-		if(fields.contains("email")) {
-			lblErrorEmail.setText(errors.get("email"));
-		}
-		
-		if(fields.contains("birthDate")) {
-			lblErrorBirthDate.setText(errors.get("birthDate"));
-		}
-		
-		if(fields.contains("baseSalary")) {
-			lblErrorBaseSalary.setText(errors.get("baseSalary"));
-		}
 	}
 	
 	public void loadAssociatedObjects() {
